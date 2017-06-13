@@ -8,7 +8,7 @@
             "request": "launch",
             "name": "Client",
             "program": "${workspaceRoot}\\Test\\run.js",
-            "args": ["13457", "${workspaceRoot}", "${file}"]
+            "args": ["13457", "${workspaceRoot}", /*"${file}"*/"${workspaceRoot}/test.html"]
         },
         {
             "type": "node",
