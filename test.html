@@ -10,6 +10,9 @@
 </head>
 
 <body>
+var sk = io.connect('ws://localhost:6027');
+sk.emit("test",{a:"1",b:"2"})
+
 </body>
 
 </html>
