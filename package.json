@@ -1,0 +1,6 @@
+{
+  "name": "websocket-node-server",
+  "version": "0.0.1",
+  "description": "WebSocket Server on Nodejs",
+  "dependencies": {}
+}
