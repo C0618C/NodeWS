@@ -1,11 +1,24 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var fs = require("fs");
+var path = require("path");
 
 app.get('/', function(req, res){
 	res.send('<h1>Welcome Realtime Server</h1>');
-    console.log("Someone visit ")
+    console.log("Someone visit ");
 });
+
+app.get('/chat', function(req, res){
+	loadFile("page.html", res);
+    console.log("Visit Chat ");
+});
+
+app.get("/*.js", function(req, res){
+	loadFile(req.url.substr(1), res);
+    console.log("Visit  "+req.url);
+});
+
 
 //在线用户
 var onlineUsers = {};
@@ -62,3 +75,40 @@ io.on('connection', function(socket){
 http.listen(6027, function(){
 	console.log('listening on *:6027');
 });
+
+
+
+function loadFile(pathname, res) {
+    switch (path.extname(pathname)) {
+        case "":
+            res.writeHead(200, { "Content-Type": "text/plain" });
+            break;
+        case ".html":
+            res.writeHead(200, { "Content-Type": "text/html" });
+            break;
+        case ".js":
+            res.writeHead(200, { "Content-Type": "text/javascript" });
+            break;
+        case ".css":
+            res.writeHead(200, { "Content-Type": "text/css" });
+            break;
+        case ".gif":
+            res.writeHead(200, { "Content-Type": "image/gif" });
+            break;
+        case ".jpg":
+            res.writeHead(200, { "Content-Type": "image/jpeg" });
+            break;
+        case ".png":
+            res.writeHead(200, { "Content-Type": "image/png" });
+            break;
+        case ".pdf":
+            res.writeHead(200, { "Content-Type": "application/pdf" });
+            break;
+        default:
+            res.writeHead(200, { "Content-Type": "application/octet-stream" });
+    }
+
+    fs.readFile(pathname, function (err, data) {
+        res.end(data);
+    });
+}
