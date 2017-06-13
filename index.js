@@ -6,6 +6,6 @@ app.get('/', function(req, res){
 	res.send('<h1>Welcome Realtime Server</h1>');
 });
 
-http.listen(3000, function(){
+http.listen(6027, function(){
 	console.log('listening on *:6027');
 });
