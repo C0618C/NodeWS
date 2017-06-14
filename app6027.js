@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
 
 	//广播式的定时器
 	const i_handler = setInterval(() => {
-		console.log("定时器")
+		//console.log("定时器")
 		io.emit("timmer", (new Date()).toString());
 	}, 1000);
 
