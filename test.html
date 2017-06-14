@@ -12,9 +12,15 @@
 
 <body>
     <p id="server_time"></p>
+    <p id="message_block"></p>
 
+    <div>
+        <form>
+            <textarea id="msg_txt"></textarea><input type="button" value="发送" onclick="sendmsg()" />
+        </form>
+    </div>
     <script>
-        var ss = io.connect('ws://localhost:6027');
+        var ss = io.connect('ws://slxtws.bgy.com.cn:6027');
         ss.on('connect', function () {
             console.log("connect success", ss.id); // 'G5p5...'
         });
@@ -25,8 +31,18 @@
 
         ss.on("timmer", function (t) {
             document.getElementById("server_time").innerText = t;
-        })
+        });
+        ss.on("msg", function (data) {
+            document.getElementById("message_block").innerHTML += ("<p><span>["+data.sender +"]:</span>"+ data.text + "</p>");
+        });
         window.ss = ss;
+
+        function sendmsg() {
+            ss.emit("msg", {
+                text: document.getElementById("msg_txt").value,
+                sender:ss.id
+            });
+        }
     </script>
 
 </body>

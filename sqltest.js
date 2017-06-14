@@ -1,12 +1,13 @@
 const sql = require('mssql');
+const dbCfg = require("./DB/config.js");
 
 
 (async function  ()  {
     try {
-        console.log("A")
-        const pool = await sql.connect('mssql://sa:7701@10.10.166.68/Others')
+        const pool = await sql.connect(dbCfg.db68)
         const result = await sql.query `select * from BPM_TL`
         console.dir(result)
+        process.exit()
     } catch (err) {
         console.log(err);
         // ... error checks 
