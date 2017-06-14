@@ -2,8 +2,14 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+var path = require("path");
 app.get('/', (req, res) => {
 	res.send('<h1>Server on work!</h1>\n');
+});
+
+app.get("/t", function(req, res){
+	res.sendfile("test.html", res);
+    //console.log("Visit  "+req.url);
 });
 
 io.on('connection', (socket) => {
