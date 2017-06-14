@@ -1,20 +1,18 @@
-const sql = require('mssql');
-const dbCfg = require("./DB/config.js");
+const SQLHelper = require("./DB/sqlhelper.js");
+const odb = SQLHelper.OthersDB();
 
-
-(async function  ()  {
+(async function () {
     try {
-        const pool = await sql.connect(dbCfg.db68)
-        const result = await sql.query `select * from BPM_TL`
-        console.dir(result)
-        process.exit()
+        await odb.GetDataTable("select top 1* from bpm_tl where id = @id", [SQLHelper.MakeInParam("id","","62F5433E-76C1-415F-9E5E-AB26812D3C84")], result => {
+            console.log(result);
+            console.warn("TT1");
+        });
+        await odb.GetDataTable("select top 1* from BPM_DISA", [], result => {
+            console.log(result);
+            console.warn("TT2");
+        })
     } catch (err) {
         console.log(err);
         // ... error checks 
     }
 })();
-
-sql.on('error', err => {
-    // ... error handler 
-    console.error(err)
-});
