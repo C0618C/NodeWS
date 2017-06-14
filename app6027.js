@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
 	console.log("connect")
 	socket.emit('message', { message: "welcome" },(ee)=>{
-		console.info(ee);
+		console.info("消息发送回调以及收到回调应答："+ee);
 	});
 
 	//console.log("socket.conn:",socket.conn);
@@ -34,11 +34,7 @@ io.on('connection', (socket) => {
 
 });
 
-
-
-
-
-
 http.listen(6027, () => {
 	console.log(`[${(new Date()).toString()}]: listening on *:6027`);
 });
+

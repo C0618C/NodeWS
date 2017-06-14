@@ -2,5 +2,7 @@
   "name": "websocket-node-server",
   "version": "0.0.1",
   "description": "WebSocket Server on Nodejs",
-  "dependencies": {}
+  "dependencies": {
+    "mssql": "^4.0.4"
+  }
 }
