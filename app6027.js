@@ -57,10 +57,11 @@ io.on('connection', (socket) => {
 });
 
 //广播式的定时器
+const timmer = io.of("/timeserver");
 const i_handler = setInterval(() => {
 	//console.log("定时器")
-	io.emit("timmer", (new Date()).toString());
-}, 1000);
+	timmer.emit("time", (new Date()).getTime());
+}, 1);
 
 
 http.listen(6027, () => {

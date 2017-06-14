@@ -20,7 +20,8 @@
         </form>
     </div>
     <script>
-        var ss = io.connect('ws://slxtws.bgy.com.cn:6027');
+        var host = "ws://localhost";
+        var ss = io.connect(host+':6027/');
         ss.on('connect', function () {
             console.log("connect success", ss.id); // 'G5p5...'
         });
@@ -29,8 +30,8 @@
             callback("Client Get Msg Success!!");
         });
 
-        ss.on("timmer", function (t) {
-            document.getElementById("server_time").innerText = t;
+        io.connect(host+":6027/timeserver").on("time", function (t) {
+            document.getElementById("server_time").innerText ="["+ t+"]"+(new Date(t)).toString();
         });
         ss.on("msg", function (data) {
             document.getElementById("message_block").innerHTML += ("<p><span>["+data.sender +"]:</span>"+ data.text + "</p>");
