@@ -11,17 +11,21 @@
 </head>
 
 <body>
-
+    <p id="server_time"></p>
 
     <script>
         var ss = io.connect('ws://localhost:6027');
         ss.on('connect', function () {
-            console.log("connect success",ss.id); // 'G5p5...'
+            console.log("connect success", ss.id); // 'G5p5...'
         });
-        ss.on("message", function(m,callback) {
+        ss.on("message", function (m, callback) {
             console.log(m);
             callback("Client Get Msg Success!!");
         });
+
+        ss.on("timmer", function (t) {
+            document.getElementById("server_time").innerText = t;
+        })
         window.ss = ss;
     </script>
 

@@ -8,8 +8,10 @@ app.get('/', (req, res) => {
 
 io.on('connection', (socket) => {
 	console.log("connect")
-	socket.emit('message', { message: "welcome" },(ee)=>{
-		console.info("消息发送回调以及收到回调应答："+ee);
+	socket.emit('message', {
+		message: "welcome"
+	}, (ee) => {
+		console.info("消息发送回调以及收到回调应答：" + ee);
 	});
 
 	//console.log("socket.conn:",socket.conn);
@@ -29,12 +31,24 @@ io.on('connection', (socket) => {
 		console.log("disconnect !!! ")
 	});
 	socket.on("cmd", (obj) => {
-		console.log("cmd:"+obj)
+		console.log("cmd:" + obj)
 	});
 
+	// //单独对连接的定时器
+	// const i_handler = setInterval(() => {
+	// //	console.log("定时器")
+	// 	socket.emit("timmer", (new Date()).toString());
+	// }, 1000);
+
 });
+
+	//广播式的定时器
+	const i_handler = setInterval(() => {
+		console.log("定时器")
+		io.emit("timmer", (new Date()).toString());
+	}, 1000);
+
 
 http.listen(6027, () => {
 	console.log(`[${(new Date()).toString()}]: listening on *:6027`);
 });
-
