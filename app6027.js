@@ -14,6 +14,10 @@ io.on('connection', (socket) => {
 	}, (ee) => {
 		console.info("消息发送回调以及收到回调应答：" + ee);
 	});
+	io.emit("msg", {
+			sender: "服务器",
+			text: "大家注意，有人来啦！"
+		});
 
 	//广播消息
 	socket.on("msg", data => {
@@ -43,8 +47,12 @@ io.on('connection', (socket) => {
 	// }, 1000);
 
 
-	socket.on("disconnect", (obj) => {
-		console.log("disconnect !!! ")
+	socket.on("disconnect", (...x) => {
+		io.emit("msg", {
+			sender: "服务器",
+			text: "有一个人离开了"
+		});
+		console.log(...x);
 	});
 });
 
