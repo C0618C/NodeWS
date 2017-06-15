@@ -13,6 +13,12 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Test EXP",
+            "program": "${workspaceRoot}/exp.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Client",
             "program": "${workspaceRoot}\\Test\\run.js",
             "args": ["13457", "${workspaceRoot}", /*"${file}"*/"${workspaceRoot}/test.html"]

@@ -50,32 +50,26 @@ class SQLHelper {
      * 查找表
      * @param {*查询字符串} sqlString 
      * @param {*参数数组} parameters 
-     * @param {*回调函数} callback(err,result) 
      */
-    async GetDataTable(sqlString, parameters, callback) {
-        this.myDB.then(db => {
-            let rq = db.request();
-            if (parameters.length > 0) {
-                for (var param of parameters) {
-                    rq.input(...param);
-                }
+    async GetDataTable(sqlString, parameters) {
+        let db =await this.myDB;
+        let rq =await db.request();
+        if (parameters.length > 0) {
+            for (var param of parameters) {
+                rq = rq.input(...param);
             }
-            rq.query(sqlString).then(result => {
-                if (result.recordsets.length == 0) throw new Error("找不到记录：" + sqlString);
-                let datatable = result.recordsets[0];
-                callback(undefined, datatable);
-            }).catch(error => {
-                console.log(`查询失败：\nSQL:[${sqlString}]\n错误信息：${error}`);
-                callback(error, datatable);
-            });
-        }).catch(error => {
-            console.log("数据库连接失败：", error);
-            callback(error, datatable);
-        });
+        }
+        let result = await rq.query(sqlString);
+        if (result.recordsets.length == 0) throw new Error("找不到记录：" + sqlString);
+        let datatable = result.recordsets[0];
+        return datatable;
     }
 
+
+
+
     /**
-     * 
+     * 用事务方式依次执行sql语句序列
      * @param {*sql查询对象队列} param0 
      * @param {*回调函数} callback_rsl(err,result) 
      */
@@ -83,7 +77,7 @@ class SQLHelper {
         this.myPool.connect(err => {
             if (err != null) throw new Error(`数据库打开连接池失败：${err}`);
 
-            const transaction = new sql.Transaction(this.myPool)
+            const transaction = new sql.Transaction(this.myPool);
             transaction.begin(err => {
                 if (err) throw new Error(`打开事务失败:${err}`);
                 let isRuning = true;
@@ -97,7 +91,8 @@ class SQLHelper {
                         if (err) {
                             isRuning = false;
                             transaction.rollback(err_roll => {
-                                callback(err, result);
+                                this.myPool.close();
+                                callback_rsl(err, result);
                             });
                             return;
                         }
@@ -118,10 +113,10 @@ class SQLHelper {
                 }
                 asyncEach((key, callback) => {
                     exec_sql(key, (result) => {
-                        //console.log(result);
                         rsl.push(result);
                         if (rsl.length == sqlItem.length) {
                             transaction.commit(err => {
+                                this.myPool.close();
                                 callback_rsl(err, rsl);
                             });
                         }
