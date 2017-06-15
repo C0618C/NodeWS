@@ -24,11 +24,13 @@ class SqlItem {
         this.param = [...params];
     }
 }
+exports.SqlItem = SqlItem;
 
 class SQLHelper {
     constructor(cfg) {
         this.__db = null;
         this.cfg = cfg;
+        this.__pool = null;
     }
 
     get myDB() {
@@ -37,14 +39,20 @@ class SQLHelper {
         }
         return this.__db;
     }
+    get myPool() {
+        if (this.__pool == null) {
+            this.__pool = new sql.ConnectionPool(this.cfg);
+        }
+        return this.__pool;
+    }
 
     /**
      * 查找表
      * @param {*查询字符串} sqlString 
      * @param {*参数数组} parameters 
+     * @param {*回调函数} callback(err,result) 
      */
     async GetDataTable(sqlString, parameters, callback) {
-        let rsl = null;
         this.myDB.then(db => {
             let rq = db.request();
             if (parameters.length > 0) {
@@ -55,35 +63,78 @@ class SQLHelper {
             rq.query(sqlString).then(result => {
                 if (result.recordsets.length == 0) throw new Error("找不到记录：" + sqlString);
                 let datatable = result.recordsets[0];
-                callback(datatable);
-            }).catch(error => console.log(`查询失败：\nSQL:[${sqlString}]\n错误信息：${error}`));
-        }).catch(error => console.log("数据库连接失败：", error));
-
-        return rsl;
+                callback(undefined, datatable);
+            }).catch(error => {
+                console.log(`查询失败：\nSQL:[${sqlString}]\n错误信息：${error}`);
+                callback(error, datatable);
+            });
+        }).catch(error => {
+            console.log("数据库连接失败：", error);
+            callback(error, datatable);
+        });
     }
 
-    async ExecuteNonQuery([...sqlItem]) {
-        const transaction = new sql.Transaction(this.myDB);
+    /**
+     * 
+     * @param {*sql查询对象队列} param0 
+     * @param {*回调函数} callback_rsl(err,result) 
+     */
+    async ExecuteNonQueryTran([...sqlItem], callback_rsl) {
+        this.myPool.connect(err => {
+            if (err != null) throw new Error(`数据库打开连接池失败：${err}`);
 
-        transaction.begin(err => {
-            console.log("begin err:",err);
+            const transaction = new sql.Transaction(this.myPool)
+            transaction.begin(err => {
+                if (err) throw new Error(`打开事务失败:${err}`);
+                let isRuning = true;
+                let request = transaction.request();
+                let exec_sql = (sql_item, callback) => {
+                    if (!isRuning) return;
+                    for (let p of sql_item.param) {
+                        request.input(...p);
+                    }
+                    request.query(sql_item.sql, (err, result) => {
+                        if (err) {
+                            isRuning = false;
+                            transaction.rollback(err_roll => {
+                                callback(err, result);
+                            });
+                            return;
+                        }
+                        callback(result);
+                    });
+                }
 
-            const request = new sql.Request(transaction)
-            request.query('insert into mytable (mycolumn) values (12345)', (err, result) => {
-                console.log("query err:",err);
-
-                transaction.commit(err => {
-                    console.log("commit err:",err);
-
-                    console.log("Transaction committed.")
-                })
-            })
-        })
+                let rsl = [];
+                let asyncEach = (fn, arr) => {
+                    let l = sqlItem.length,
+                        i = -1;
+                    let runner = function () {
+                        i += 1;
+                        if (i >= l) return;
+                        fn(sqlItem[i], runner);
+                    };
+                    runner();
+                }
+                asyncEach((key, callback) => {
+                    exec_sql(key, (result) => {
+                        //console.log(result);
+                        rsl.push(result);
+                        if (rsl.length == sqlItem.length) {
+                            transaction.commit(err => {
+                                callback_rsl(err, rsl);
+                            });
+                        }
+                        callback();
+                    })
+                }, sqlItem);
+            });
+        });
     }
 }
 
 sql.on('error', err => {
-    console.error(err)
+    console.error(`SQL ON ERROR：${err}`);
 });
 
 /**
