@@ -52,12 +52,13 @@ class SQLHelper {
      * @param {*参数数组} parameters 
      */
     async GetDataTable(sqlString, parameters) {
-        let db = await this.myDB;
+        let db = await this.myPool.connect();
         let rq = await db.request();
         for (var param of parameters) {
             rq = rq.input(...param);
         }
         let result = await rq.query(sqlString);
+        this.myPool.close();
         if (result.recordsets.length == 0) throw new Error("找不到记录：" + sqlString);
         let datatable = result.recordsets[0];
         return datatable;
@@ -69,29 +70,28 @@ class SQLHelper {
      */
     async ExecuteNonQueryTran([...sqlItem]) {
         let result_array = [];
+        let db = await this.myPool.connect();
+        let transaction = await db.transaction();
         try {
-            let db = await this.myPool.connect();
-            let transaction = await db.transaction();
-
             await transaction.begin();
             let rq = await transaction.request();
             for (let sql_item of sqlItem) {
                 for (var param of sql_item.param) {
                     rq = rq.input(...param);
                 }
-                result_array.push(
-                    await rq.query(sql_item.sql)
-                );
+                result_array.push(await rq.query(sql_item.sql));
             }
             await transaction.commit(err => {
-                this.myPool.close();
                 if (err) throw new Error(`提交失败：${err}`);
             });
         } catch (err) {
-            this.myPool.close();
+            //this.myPool.close();
+            await transaction.rollback(err=>{
+                this.myPool.close();
+            });
             throw err;
         }
-
+        this.myPool.close();
         return result_array;
     }
 }

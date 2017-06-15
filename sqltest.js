@@ -3,13 +3,13 @@ const odb = SQLHelper.OthersDB();
 
 (async function () {
     try {
-        console.log(1);
-        let result = await odb.GetDataTable("waitfor delay \'00:00:05\';select msg from bpm_taa", []);
-        console.log(result);
+        // console.log(1);
+        // let result = await odb.GetDataTable("waitfor delay \'00:00:05\';select msg from bpm_taa", []);
+        // console.log(result);
 
-        result = await odb.GetDataTable("select * from bpm_taa where id = @id", [SQLHelper.MakeInParam("id","Int",2)]);
-        console.log(2);
-        console.log(result);
+        // result = await odb.GetDataTable("select * from bpm_taa where id = @id", [SQLHelper.MakeInParam("id","Int",2)]);
+        // console.log(2);
+        // console.log(result);
         
 
         var c = new SQLHelper.SqlItem("waitfor delay \'00:00:05\';insert into bpm_taa(msg) values(@msg_a)", [
