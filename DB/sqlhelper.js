@@ -52,12 +52,10 @@ class SQLHelper {
      * @param {*参数数组} parameters 
      */
     async GetDataTable(sqlString, parameters) {
-        let db =await this.myDB;
-        let rq =await db.request();
-        if (parameters.length > 0) {
-            for (var param of parameters) {
-                rq = rq.input(...param);
-            }
+        let db = await this.myDB;
+        let rq = await db.request();
+        for (var param of parameters) {
+            rq = rq.input(...param);
         }
         let result = await rq.query(sqlString);
         if (result.recordsets.length == 0) throw new Error("找不到记录：" + sqlString);
@@ -65,66 +63,36 @@ class SQLHelper {
         return datatable;
     }
 
-
-
-
     /**
      * 用事务方式依次执行sql语句序列
      * @param {*sql查询对象队列} param0 
-     * @param {*回调函数} callback_rsl(err,result) 
      */
-    async ExecuteNonQueryTran([...sqlItem], callback_rsl) {
-        this.myPool.connect(err => {
-            if (err != null) throw new Error(`数据库打开连接池失败：${err}`);
+    async ExecuteNonQueryTran([...sqlItem]) {
+        let result_array = [];
+        try {
+            let db = await this.myPool.connect();
+            let transaction = await db.transaction();
 
-            const transaction = new sql.Transaction(this.myPool);
-            transaction.begin(err => {
-                if (err) throw new Error(`打开事务失败:${err}`);
-                let isRuning = true;
-                let request = transaction.request();
-                let exec_sql = (sql_item, callback) => {
-                    if (!isRuning) return;
-                    for (let p of sql_item.param) {
-                        request.input(...p);
-                    }
-                    request.query(sql_item.sql, (err, result) => {
-                        if (err) {
-                            isRuning = false;
-                            transaction.rollback(err_roll => {
-                                this.myPool.close();
-                                callback_rsl(err, result);
-                            });
-                            return;
-                        }
-                        callback(result);
-                    });
+            await transaction.begin();
+            let rq = await transaction.request();
+            for (let sql_item of sqlItem) {
+                for (var param of sql_item.param) {
+                    rq = rq.input(...param);
                 }
-
-                let rsl = [];
-                let asyncEach = (fn, arr) => {
-                    let l = sqlItem.length,
-                        i = -1;
-                    let runner = function () {
-                        i += 1;
-                        if (i >= l) return;
-                        fn(sqlItem[i], runner);
-                    };
-                    runner();
-                }
-                asyncEach((key, callback) => {
-                    exec_sql(key, (result) => {
-                        rsl.push(result);
-                        if (rsl.length == sqlItem.length) {
-                            transaction.commit(err => {
-                                this.myPool.close();
-                                callback_rsl(err, rsl);
-                            });
-                        }
-                        callback();
-                    })
-                }, sqlItem);
+                result_array.push(
+                    await rq.query(sql_item.sql)
+                );
+            }
+            await transaction.commit(err => {
+                this.myPool.close();
+                if (err) throw new Error(`提交失败：${err}`);
             });
-        });
+        } catch (err) {
+            this.myPool.close();
+            throw err;
+        }
+
+        return result_array;
     }
 }
 
