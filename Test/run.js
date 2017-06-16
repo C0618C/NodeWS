@@ -1,8 +1,7 @@
 let url = require("url"),
     fs = require("fs"),
     http = require("http"),
-    path = require("path"),
-    open = require('opn');
+    path = require("path");
 let [v_port, local, fpath] = process.argv.splice(2);
 
 function loadFile(pathname, res) {
@@ -43,7 +42,7 @@ function loadFile(pathname, res) {
 
 let pathDir = fpath.replace(local + "\\", "").replace("\\", "/");
 pathDir = pathDir.substr(0, pathDir.lastIndexOf("/"));
-let localDir = __dirname.replace(/\/|\\test/i, "");
+let localDir = '/'+__dirname.replace(/\/|\\test/i, "");
 http.createServer(function (req, res) {
     let reqPath = decodeURI(url.parse(req.url).pathname);
 
@@ -78,9 +77,9 @@ http.createServer(function (req, res) {
 }).listen(v_port);
 
 
-if (/\.(?:js|css|json|cfg|md|ico)/.test(fpath)) {
-    open(`http://127.0.0.1:${v_port}/${pathDir}`, { app: 'chrome' });
-} else {
-    let tPath = fpath.replace(local, "").replace("\\", "/");
-    open(`http://127.0.0.1:${v_port}` + tPath);
-}
+// if (/\.(?:js|css|json|cfg|md|ico)/.test(fpath)) {
+//     open(`http://127.0.0.1:${v_port}/${pathDir}`, { app: 'chrome' });
+// } else {
+//     let tPath = fpath.replace(local, "").replace("\\", "/");
+//     open(`http://127.0.0.1:${v_port}` + tPath);
+// }

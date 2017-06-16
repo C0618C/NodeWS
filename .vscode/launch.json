@@ -26,7 +26,7 @@
             "type": "node",
             "request": "launch",
             "name": "Client",
-            "program": "${workspaceRoot}\\Test\\run.js",
+            "program": "${workspaceRoot}/Test/run.js",
             "args": ["13457", "${workspaceRoot}", /*"${file}"*/"${workspaceRoot}/Test/test.html"]
         },
         {

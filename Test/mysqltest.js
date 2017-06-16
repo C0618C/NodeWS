@@ -3,7 +3,8 @@ const mysql = require("mysql");
 (async() => {
     const conn = {
         //host: "10.182.4.18",
-        host: "10.10.166.27",
+        //host: "10.10.166.27",
+        host: "localhost",
         user: "slxt",
         password: "7701",
         database: "testdb"
