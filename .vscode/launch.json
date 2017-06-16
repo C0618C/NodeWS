@@ -8,20 +8,26 @@
             "type": "node",
             "request": "launch",
             "name": "Test MSSQL",
-            "program": "${workspaceRoot}/sqltest.js"
+            "program": "${workspaceRoot}/Test/sqltest.js"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Test EXP",
-            "program": "${workspaceRoot}/exp.js"
+            "program": "${workspaceRoot}/Test/exp.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test MySQL",
+            "program": "${workspaceRoot}/Test/mysqltest.js"
         },
         {
             "type": "node",
             "request": "launch",
             "name": "Client",
             "program": "${workspaceRoot}\\Test\\run.js",
-            "args": ["13457", "${workspaceRoot}", /*"${file}"*/"${workspaceRoot}/test.html"]
+            "args": ["13457", "${workspaceRoot}", /*"${file}"*/"${workspaceRoot}/Test/test.html"]
         },
         {
             "type": "node",
