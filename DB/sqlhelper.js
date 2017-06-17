@@ -2,35 +2,14 @@
  * 封装常用的数据库操作
  */
 const sql = require('mssql');
+const MDBI = require("./mdbi.js");
 const dbcfg = require("./config.js");
 
+exports.SqlItem = MDBI.SqlItem;
 
-class SqlParameter {
-    constructor(paramName, dbType, value) {
-            this.param_name = paramName;
-            this.db_type = dbType;
-            this.value = value;
-        }
-        *[Symbol.iterator]() {
-            yield this.param_name;
-            yield this.db_type;
-            yield this.value;
-        }
-}
-
-class SqlItem {
-    constructor(sql, [...params]) {
-        this.sql = sql;
-        this.param = [...params];
-    }
-}
-exports.SqlItem = SqlItem;
-
-class SQLHelper {
+class SQLHelper  extends MDBI.SqlHelper {
     constructor(cfg) {
-        this.__db = null;
-        this.cfg = cfg;
-        this.__pool = null;
+        super(cfg);
     }
 
     get myDB() {
@@ -129,5 +108,5 @@ function GetDbType(type, ...x) {
  */
 exports.MakeInParam = (paramName, x, value) => {
     let type = Array.isArray(x) ? GetDbType(...x) : GetDbType(x);
-    return new SqlParameter(paramName, type, value);
+    return new MDBI.Param(paramName, type, value);
 }
