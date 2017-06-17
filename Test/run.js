@@ -2,6 +2,7 @@ let url = require("url"),
     fs = require("fs"),
     http = require("http"),
     path = require("path");
+let open = require("opn");
 let [v_port, local, fpath] = process.argv.splice(2);
 
 function loadFile(pathname, res) {
@@ -77,9 +78,9 @@ http.createServer(function (req, res) {
 }).listen(v_port);
 
 
-// if (/\.(?:js|css|json|cfg|md|ico)/.test(fpath)) {
-//     open(`http://127.0.0.1:${v_port}/${pathDir}`, { app: 'chrome' });
-// } else {
-//     let tPath = fpath.replace(local, "").replace("\\", "/");
-//     open(`http://127.0.0.1:${v_port}` + tPath);
-// }
+if (/\.(?:js|css|json|cfg|md|ico)/.test(fpath)) {
+    open(`http://127.0.0.1:${v_port}/${pathDir}`, { app: 'chrome' });
+} else {
+    let tPath = fpath.replace(local, "").replace("\\", "/");
+    open(`http://127.0.0.1:${v_port}` + tPath);
+}
